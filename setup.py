@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='GramediaCommon',
+    name='python-common',
     version='0.1.0',
     packages=[
         'gramedia',
