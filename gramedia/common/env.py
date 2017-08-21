@@ -38,7 +38,7 @@ class EnvConfig:
     def __init__(self, app_prefix: str):
         self.app_prefix = app_prefix
 
-    def boolean(self, varname: str, default: str=None) -> bool:
+    def boolean(self, varname: str, default: bool=None) -> bool:
         return _bool(self.app_prefix, varname, default)
 
     def string(self, varname: str, default: str=None) -> str:
