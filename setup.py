@@ -1,18 +1,18 @@
-from distutils.core import setup
+from os.path import dirname, join, abspath
+from setuptools import setup, find_packages
+
+ROOT_DIR = dirname(abspath(__file__))
 
 setup(
-    name='python-common',
-    version='0.2.0',
-    packages=[
-        'gramedia',
-        'gramedia.common'
-    ],
+    packages=find_packages(where=join(ROOT_DIR, 'src')),
+    package_dir={'gramedia': 'src/gramedia'},
     url='https://engineering.gramedia.com',
-    license='',
-    author='Backend Team',
-    install_requires=[
-        'humanize',
-    ],
-    author_email='backend@staff.gramedia.com',
-    description='Basic python 3.6 helper classes and functions'
+    author='Gramedia Digital Nusantara Team',
+    author_email='engineering@gramedia.digital',
+
+    project_urls={
+        'Documentation': 'https://gdn-python-common.rtfd.io/',
+        'Source': 'https://github.com/gramedia-digital-nusantara/python-common',
+        'Tracker': 'https://github.com/gramedia-digital-nusantara/python-common/issues',
+    },
 )
