@@ -12,14 +12,8 @@ Running Tests
 
 .. code-block:: bash
 
-    $ # sdist isn't strictly required -- but you probably want it anyway
-    $ # in the event that you upload this to pypi.
-    $ python setup.py sdist bdist_wheel
-    $ pip install dist/*.whl
-    $ pytest
-    $ # cleanup after you're done
-    $ pip uninstall gdn-python-common
-    $ rm -fR .cache/ .eggs/ build/ dist/ *.egg-info
+    $ make test
+    $ make clean
 
 Notes
 -----
