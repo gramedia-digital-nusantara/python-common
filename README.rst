@@ -10,17 +10,20 @@ Additionally, it is desirable to keep the dependencies to an absolute minimum.
 Running Tests
 -------------
 
-.. source-code:: bash
+.. code-block:: bash
 
     $ # sdist isn't strictly required -- but you probably want it anyway
     $ # in the event that you upload this to pypi.
     $ python setup.py sdist bdist_wheel
     $ pip install dist/*.whl
     $ pytest
+    $ # cleanup after you're done
+    $ pip uninstall gdn-python-common
+    $ rm -fR .cache/ .eggs/ build/ dist/ *.egg-info
 
 Notes
 -----
 
 * This is pretty sparse.. Please be in the habit of adding anything you like to here.
-* Documentation needs added.
-
+* TODO: Documentation needs added.
+* TODO: create a Makefile
