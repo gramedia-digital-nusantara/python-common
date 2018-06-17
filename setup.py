@@ -6,9 +6,6 @@ ROOT_DIR = dirname(abspath(__file__))
 setup(
     packages=find_packages(where=join(ROOT_DIR, 'src')),
     package_dir={'gramedia': 'src/gramedia'},
-    url='https://engineering.gramedia.com',
-    author='Gramedia Digital Nusantara Team',
-    author_email='engineering@gramedia.digital',
 
     project_urls={
         'Documentation': 'https://gdn-python-common.rtfd.io/',

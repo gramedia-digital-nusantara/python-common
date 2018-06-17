@@ -11,3 +11,5 @@ local-install: clean build
 test: local-install
 	pytest
 
+lint:
+	pylint src/gramedia tests/*.py
