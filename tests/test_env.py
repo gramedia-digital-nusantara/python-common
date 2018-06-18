@@ -93,6 +93,8 @@ def test_django_db_uri_pg_mysql_oracle():
 
 @patch('gramedia.common.env.getenv', new=fake_getenv)
 def test_django_db_uri_sqlite():
+    """ Ensure SQLite database URIs parse
+    """
     Env = EnvConfig('GM')
 
     expected = {
