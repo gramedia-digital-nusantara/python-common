@@ -6,6 +6,7 @@ Simple helper-methods meant for parsing application config settings from
 environmental variables.  The intention of this module is to make 'config.py'
 more readable.
 """
+import re
 from os import getenv
 from functools import partial
 from typing import Callable
@@ -40,6 +41,51 @@ def _int(app_prefix: str, var_name: str, default: int=None) -> int:
     return __env(app_prefix, var_name, default, int)
 
 
+class BadDatabaseUri(Exception):
+    pass
+
+
+def _db_url_to_django(app_prefix: str, var_name: str, default: dict=None):
+    """ Converts a database URI string (similar to SQLAlchemy format) to Django.
+
+    **Examples**
+
+    +--------------------------+-----------------------------------------------------------------------+
+    | Backend                  | Format                                                                |
+    +==========================+=======================================================================+
+    | Postgresql/MySQL/Oracle  | {postgresql|mysql|oracle}://{user}:{password}@{host}:{port}/{db_name} |
+    | SQlite                   | sqlite3://{absolute_path}                                             |
+    +--------------------------+-----------------------------------------------------------------------+
+    """
+    val = __env(app_prefix, var_name, default, str)
+
+    protocol, rest = re.match(r'^(\w+)://(.*)$', val).groups()
+    if not all([protocol, rest]):
+        raise BadDatabaseUri()
+
+    if protocol == 'sqlite3':
+        regex = re.compile(r'^(?P<NAME>.*)$')
+    else:
+        regex = re.compile(r'^(?P<USER>\w+?):(?P<PASSWORD>.+?)@(?P<HOST>\w+?):(?P<PORT>\d+)/(?P<NAME>\w+)$')
+
+    try:
+        rslt = regex.match(rest).groupdict()
+        rslt['ENGINE'] = f'django.db.backends.{protocol}'
+
+    except AttributeError:
+        raise BadDatabaseUri()
+
+    return rslt
+
+
+
+
+
+
+
+
+
+
 class EnvConfig:
     """ Class that should be used when referencing environmental variables.
 
@@ -69,3 +115,6 @@ class EnvConfig:
 
     def int(self, var_name: str, default: int=None) -> int:
         return _int(self.app_prefix, var_name, default)
+
+    def django_db(self, var_name: str, default: str=None) -> dict:
+        return _db_url_to_django(self.app_prefix, var_name, default)
