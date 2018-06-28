@@ -66,7 +66,7 @@ def _db_url_to_django(app_prefix: str, var_name: str, default: dict=None):
     if protocol == 'sqlite3':
         regex = re.compile(r'^(?P<NAME>.*)$')
     else:
-        regex = re.compile(r'^(?P<USER>\w+?):(?P<PASSWORD>.+?)@(?P<HOST>\w+?):(?P<PORT>\d+)/(?P<NAME>\w+)$')
+        regex = re.compile(r'^(?P<USER>\w+?):(?P<PASSWORD>.+?)@(?P<HOST>\S+?):(?P<PORT>\d+)/(?P<NAME>\w+)$')
 
     try:
         rslt = regex.match(rest).groupdict()
