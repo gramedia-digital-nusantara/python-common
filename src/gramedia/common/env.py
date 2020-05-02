@@ -78,14 +78,6 @@ def _db_url_to_django(app_prefix: str, var_name: str, default: dict=None):
     return rslt
 
 
-
-
-
-
-
-
-
-
 class EnvConfig:
     """ Class that should be used when referencing environmental variables.
 

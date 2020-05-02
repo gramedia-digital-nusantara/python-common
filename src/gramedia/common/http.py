@@ -8,13 +8,6 @@ from enum import Enum
 import re
 
 
-class LinkPaginationRel(Enum):
-    first = 'first'
-    next = 'next'
-    prev = 'prev'
-    last = 'last'
-
-
 class LinkHeaderRel(Enum):
     """ Simple enum that represents some basic 'rel' types that we might
     expect for a 'link header'.
@@ -30,11 +23,10 @@ class LinkHeaderRel(Enum):
 class LinkHeaderField(object):
     """ A single entity from a link header field.
     """
-    def __init__(self, url: str, rel: LinkHeaderRel, title: str=None, value: str=None):
+    def __init__(self, url: str, rel: LinkHeaderRel, title: str=None):
         self.url = url
         self.rel = rel
         self.title = title
-        self.value = value
 
     @classmethod
     def from_string(cls, link_header_part: str):
@@ -42,7 +34,6 @@ class LinkHeaderField(object):
             url=LinkHeaderField._parse_url(link_header_part),
             rel=LinkHeaderField._parse_rel(link_header_part),
             title=LinkHeaderField._parse_title(link_header_part),
-            value=LinkHeaderField._parse_value(link_header_part)
         )
 
     @staticmethod
@@ -67,11 +58,6 @@ class LinkHeaderField(object):
         m = re.search(r';\stitle="(?P<title>.+)"(;|$)', link_header_part, re.IGNORECASE)
         return m.groupdict().get('title') if m is not None else None
 
-    @staticmethod
-    def _parse_value(link_header_part: str) -> str:
-        m = re.search(r';\svalue="(?P<value>.+)"(;|$)', link_header_part, re.IGNORECASE)
-        return m.groupdict().get('value') if m is not None else None
-
     def __eq__(self, other) -> bool:
         props = ['rel', 'url', 'title', ]
         return all([getattr(self, p) == getattr(other, p) for p in props])
@@ -81,7 +67,6 @@ class LinkHeaderField(object):
         if self.rel:
             link += f'; rel="{self.rel.value}"' if hasattr(self.rel, 'value') else f'; rel="{self.rel}"'
         link += f'; title="{self.title}"' if self.title else ""
-        link += f'; value="{self.value}"' if self.value else ""
         return link
 
 
