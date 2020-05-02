@@ -180,7 +180,7 @@ class SummaryCamelCaseRenderer(CamelCaseJSONRenderer):
         }
 
     """
-    media_type = SUMMARY_FORMAT
+    media_type = 'application/json'
     format = 'json'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
@@ -214,6 +214,6 @@ class SummaryCamelCaseRenderer(CamelCaseJSONRenderer):
 
 
 class FullCamelCaseRenderer(CamelCaseJSONRenderer):
-    media_type = FULL_FORMAT
+    media_type = 'application/json'
     format = 'json+full'
 
