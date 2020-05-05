@@ -1,3 +1,4 @@
+from autoslug import AutoSlugField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,7 +52,7 @@ class BaseModel(SoftDeletableModel, TimestampedModel):
     """ Common model for most of our standard use-cases.
     """
     name = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True)
+    slug = AutoSlugField(populate_from='name', unique=True)
 
     class Meta:
         abstract = True

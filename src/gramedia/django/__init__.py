@@ -6,5 +6,5 @@ try:
     import django
     import rest_framework
 except ModuleNotFoundError:
-    log.exception('This module requires django')
+    log.exception('This module requires django and rest_framework')
     raise
