@@ -5,7 +5,6 @@ Django Rest Framework utility classes
 Anything in this package is used along with the Django Rest Framework
 to provide for our use cases within our application.
 """
-
 from django.conf import settings
 from django.utils.translation import get_language_from_request
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -77,10 +76,14 @@ class LinkHeaderPagination(pagination.PageNumberPagination):
             ])
 
         headers = {
-            'Link': ", ".join(
-                [str(link) for link in link_parts]) if link_parts else {},
             'X-Total-Results': self.page.paginator.count,
+            'X-Page-Size': self.page_size,
+            'X-Page': self.page.number
         }
+
+        if link_parts:
+            headers['Link'] = ", ".join([str(link) for link in link_parts])
+
         return Response(data, headers=headers)
 
 
