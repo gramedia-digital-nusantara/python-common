@@ -4,7 +4,7 @@ Gramedia / Python Common
 .. image:: https://img.shields.io/pypi/v/gdn-python-common
 .. image:: https://img.shields.io/pypi/dm/gdn-python-common
 .. image:: https://img.shields.io/pypi/format/gdn-python-common
-
+.. image:: https://travis-ci.com/gramedia-digital-nusantara/python-common.svg?branch=master
 
 A hodgepodge of common helpers and utilities used at GDN across several Python 3.6+ projects.
 
