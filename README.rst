@@ -1,23 +1,22 @@
 Gramedia / Python Common
 ========================
 
-A set of common python helper classes and functions not tied to a single framework.
+A hodgepodge of common helpers and utilities used at GDN across several Python 3.6+ projects.
 
-Everything in here should be generic as humanly possible and should only target python 3.6.
+* Progress Bars for your long-running CLI tasks
+* Configure your app from environmental variables
+* Parse and Write HTTP Link Headers
+* Use link-header-style pagination in Django-Rest-Framework
+* Base django model classes (timestamped, name+auto slug, soft-deletable models)
 
-Additionally, it is desirable to keep the dependencies to an absolute minimum.
+Installing
+----------
 
-Running Tests
--------------
+This library is available on [pypi](https://pypi.org/project/gdn-python-common/)
 
-.. code-block:: bash
+.. code-block:: sh
 
-    $ make test
-    $ make clean
+    pip install gdn-python-common
 
-Notes
------
-
-* This is pretty sparse.. Please be in the habit of adding anything you like to here.
-* TODO: Documentation needs added.
-* TODO: create a Makefile
+    # or, if you'd like to have django-rest-framework installed automatically
+    pip install gdn-python-common[drf]
