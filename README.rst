@@ -1,6 +1,11 @@
 Gramedia / Python Common
 ========================
 
+.. image:: https://img.shields.io/pypi/v/gdn-python-common
+.. image:: https://img.shields.io/pypi/dm/gdn-python-common
+.. image:: https://img.shields.io/pypi/format/gdn-python-common
+
+
 A hodgepodge of common helpers and utilities used at GDN across several Python 3.6+ projects.
 
 * Progress Bars for your long-running CLI tasks
@@ -11,8 +16,6 @@ A hodgepodge of common helpers and utilities used at GDN across several Python 3
 
 Installing
 ----------
-
-This library is available on [pypi](https://pypi.org/project/gdn-python-common/)
 
 .. code-block:: sh
 
