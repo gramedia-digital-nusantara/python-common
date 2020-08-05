@@ -1,46 +1,75 @@
 import json
 import os
 
-from jsonschema import RefResolver, validators
+from jsonschema import RefResolver, validators, RefResolutionError
+from jsonschema.compat import urlsplit, urldefrag
 
 
-class CorJsonResolver(RefResolver):
-    """ Allows JSON schema to resolve references to other JSONSchemas within our project directory
+def find_schema_path(schema_name: str):
+    """ Reference resolver for Django based projects.
+
+    This assumes the following:
+
+    - Each 'app' within your django project will have a static/schema directory, and schemas will be stored within
+      that directory.
+    - Your schemas will not be nested any deeper than <app>/static/schemas/<someschema.json>
+
+    Example:
+    # this file exists
+    banners/static/schemas/banner-schema.json
+
+    find_schema_path('banner_schema.json')
+    > /the-full-path/banners/static/schemas/banner-schema.json
+
+    find_schema_path('i-dont-exist.json')
+    > None
     """
-    def resolve_remote(self, uri):
-        _this_dir = os.path.abspath(os.path.dirname(__file__), )
-        _app_base_dir = os.path.join(_this_dir, os.pardir)
+    try:
+        from django.conf import settings
+    except ImportError:
+        raise RuntimeError(
+            "It doesn't look like you have django installed.  "
+            "You cannot use this DjangoSchemaResolver outside of a Django project.")
 
-        try:
-            uri = uri.replace(self.base_uri, '')
-            uri_parts = uri.split('/')
-            package, everything_else = uri_parts[0], uri_parts[1:]
-
-            expected_full_path = os.path.join(
-                _app_base_dir,
-                package,
-                'static',
-                'schemas',
-                *everything_else)
-            if os.path.exists(expected_full_path):
-                with open(expected_full_path) as fp:
-                    json_schema = json.load(fp)
-                return json_schema
-        except Exception:
-            return super(CorJsonResolver, self).resolve_remote(uri)
+    for pkg in settings.INSTALLED_APPS:
+        full_path = os.path.join(settings.BASE_DIR, *pkg.split('.'), 'static', 'schemas', schema_name)
+        if os.path.exists(full_path):
+            return full_path
 
 
-class GramediaDraft4Validator(validators.Draft4Validator):
-    """  JSON Schema validator.  This is the same as the default validator, for all intents and purposes.
+class DjangoSchemaResolver(RefResolver):
+    """ Reference resolver for Django based projects.
+
+    This assumes the following:
+
+    - Each 'app' within your django project will have a static/schema directory, and schemas will be stored within
+      that directory.
+    - Your schemas will not be nested any deeper than <app>/static/schemas/<someschema.json>
+
+    Example:
+    banners/static/schemas/banner-schema.json
     """
+
+    def resolve_from_url(self, uri):
+        uri, fragment = urldefrag(uri)
+        split_url = urlsplit(uri)
+        if split_url.scheme in self.handlers:
+            return self.handlers[split_url.scheme](uri)
+        full_path = find_schema_path(uri.split('/')[-1])
+        if full_path:
+            with open(full_path) as fp:
+                json_schema = json.load(fp)
+            if not json_schema:
+                # TODO: fix exception method
+                raise RefResolutionError(
+                    "Unresolvable JSON schema: %r" % uri
+                )
+            return self.resolve_fragment(json_schema, fragment)
+        else:
+            # if a schema can't be found locally, just default to using the standard resolver
+            return super(DjangoSchemaResolver, self).resolve_from_url(uri)
+
+
+class DjangoDraft4Validator(validators.Draft4Validator):
     def __init__(self, schema, resolver):
-        super(GramediaDraft4Validator, self).__init__(schema, resolver=resolver)
-
-
-def validate_gramedia_jsonschema(jsondoc: dict, schema: dict, base_url: str='https://gramedia.com/static/schemas/'):
-    """ Validates a JSON schema using GDN's validator.  Where this differs is that it assumes any schemas that start
-    with 'base_url' may be located on disk, and will try to locate them based on filename instead of via an HTTP
-    url.
-    """
-    resolver = CorJsonResolver(base_url, jsondoc)
-    GramediaDraft4Validator(schema, resolver).validate(jsondoc)
+        super(DjangoDraft4Validator, self).__init__(schema, resolver=resolver)
