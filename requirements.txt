@@ -1,6 +1,5 @@
-humanize==0.5.1
-jsonschema==2.6.0
+humanize==2.6.0
+jsonschema==3.2.0
 
-pytest==3.2.1
-pylint==1.9.2
-
+pytest==6.0.1
+pylint==2.6.0
