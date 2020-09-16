@@ -9,7 +9,7 @@ script:
 - pytest
 deploy:
   provider: pypi
-  username: __token__
+  username: "__token__"
   password: 
     secure: H6SLk9wDX/AYJVAzzt6biSKRXk6gBY4zfTWZ0+NHMKFJLzeC9QYNWBY2QYUZ/VhUI8NXUvLo5/L6WcJFjv7GrKLnz2a5vEbuoIS9NS2X3Z/GjNAJ5gHjBlgka5d6ICI7t30rjAnPphK4uuyFaemuJOmJM/SMrrXu6G+sIzJJTB659S9nLo6G21HGI2vt1kQ2qdyvo8647mqqUV0hdKIbaJkv3RlFCDc0BNHKciK7RubVpu/fZC7blfbDAbMcjzks49ftJrtfh8zW1M+18EHABoRliQXPTg2ZQrCsX1cnOgqHBAdaELoJteHOboYm8b6pIW6rIUg8J43tbRz0CkVvwh/PF8Cb/m/N5GrJVcV1N/luLWdQSWnJq7ERVBIsMKtMCoilXAo3sknC4E4tLC7uH+ZzAoNCoaZtDdr1rGLYtSHZ9JsFrHYCmRGoaZt3pVRkJ2/+0vH2rzgcOuWrNr/k4TfYBtqGHjTRqUWK8VuXl16CqvMzHqxiANexObggHQxTbuo9JBBJ/ztMhcbz/7RBZgO+NCkfz4E6wXLyHysEM6RfmICTHi74e0Fca4X8i6Tn/58O3GnoCGPZhZWQujUdcrPjjt3OuGqb2XrxCE2X7ZIL5hMwFk8RqsPfPT6h42A+iw9NFBZdVrYEklMzyHTR5d4owVHsAPHHLSPIvgyCV+k=
   on:
