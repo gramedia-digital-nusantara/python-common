@@ -51,7 +51,7 @@ class ManuallySortedModel(models.Model):
 class BaseModel(SoftDeletableModel, TimestampedModel):
     """ Common model for most of our standard use-cases.
     """
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=120)
     slug = AutoSlugField(populate_from='name', unique=True)
 
     class Meta:
