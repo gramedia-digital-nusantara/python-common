@@ -1,3 +1,6 @@
+wheel
+setuptools
+
 humanize==2.6.0
 jsonschema==3.2.0
 
