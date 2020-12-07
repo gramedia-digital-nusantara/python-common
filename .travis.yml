@@ -1,7 +1,6 @@
 language: python
 python:
-- '3.6'
-- 3.7-dev
+- '3.8'
 install:
 - pip install --upgrade pip
 - make local-install
@@ -10,7 +9,8 @@ script:
 deploy:
   provider: pypi
   twine_version: 1.13.0
-  username: "__token__"
+  username: GramediaDigitalNusantara
+  skip_existing: true
   password: 
     secure: "I00CT/5n2oENY97vkAaLq/v3gqNiAh4qYjlCABlCQuk9mslfVsi2KspzhiADhKT4gG2l6YlXeBl33TX6fBhzMkBSr34ctS7CKCuTQD9HHKUzHgWBETgdRQ9Gia8Q3Hh6zd6fm/1+TJMw5dstWuyQbzE7swx/PhbbTCRRuQ+qNsZ8/NdHKYGXIvTThffVuiCV5dVitZ/lInAQC8J5Ggb4/pFp29g2yT8NnFjNC1pYpwCrAcd13rmVGFtzxPN099jyTtKXvDhPR8Sru8LiFIFOoWDtdufGnxv+/MebyESvemVk7U785b3IjB7UEl8yVyvCQkcBat8LoyBdr3imdodDrzg0xjAX2GsqL9aJahEbssI0Qxj8syYy4KwtGlB4/p/6f1RVjZNIl2rHODp7RWpVvOQfyIIj0W6QyBtk6gquy2RA/R8Pl+siAeABl9tOZTAGmPbb1M+Z0Mqe3u8bvMjp63VVLiFxwkl2zQWosEKXnn5sm3GSVLYM1O6Y1aNqlRcoZxMNDqDrrZ6eHLdw2EYnI5dkh6jBga2gjv1OqQmwZMKSK223UlecmHwADxj1Ip8+MFRezzTkZgK7zAM4E7foV5FZDtx0Of8wYWZl14DkgACosZRSiIbDBT3XNujmbqea0muY6s6NlyyDWk6+AKyxrPMw7YqVXLgWtT3SuC1GGuc="
   on:
