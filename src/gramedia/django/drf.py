@@ -77,7 +77,7 @@ class LinkHeaderPagination(pagination.PageNumberPagination):
 
         headers = {
             'X-Total-Results': self.page.paginator.count,
-            'X-Page-Size': self.page_size,
+            'X-Page-Size': self.get_page_size(self.request),
             'X-Page': self.page.number
         }
 
