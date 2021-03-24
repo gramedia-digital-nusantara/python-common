@@ -3,7 +3,7 @@ from uuid import UUID
 
 from unittest.mock import MagicMock
 
-from src.gramedia.django.fields import UUIDUploadTo
+from gramedia.django.fields import UUIDUploadTo
 
 
 def is_valid_uuid(uuid_to_test, version=4):
