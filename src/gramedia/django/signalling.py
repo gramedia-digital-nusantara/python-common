@@ -132,7 +132,13 @@ class BasicPublisher:
         :param user:
         """
         self.create_exchange()
-        data = message_serializer(message, context=self.simulate_context()).data
+        if message_serializer is not None:
+            data = message_serializer(message, context=self.simulate_context()).data
+        else:
+            if type(message) == dict:
+                data = message
+            else:
+                data = {}
 
         body = self.construct_message(
             data=data,
