@@ -6,15 +6,20 @@ Anything in this package is used along with the Django Rest Framework
 to provide for our use cases within our application.
 """
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from django.utils.translation import get_language_from_request
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework import serializers
 from rest_framework import pagination
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
-
+from django.utils.translation import ugettext_lazy as _
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
     """ Replaces the default pagination classes, provided by DRF, with one
@@ -220,3 +225,99 @@ class FullCamelCaseRenderer(CamelCaseJSONRenderer):
     media_type = 'application/json'
     format = 'json+full'
 
+
+class CurrentSiteSerializerMixin:
+    """ Automatically attaches the current 'site' to a model.
+
+    .. warning::
+        This is only for use with FK-Site-related models, with an attribute 'site'
+    """
+
+    def create(self, validated_data):
+        validated_data['site'] = get_current_site(self.context['request'])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data['site'] = get_current_site(self.context['request'])
+        return super().update(instance, validated_data)
+
+
+class CurrentSiteViewSetMixin:
+
+    def get_queryset(self):
+        site = get_current_site(self.request)
+        return self.queryset.filter(site=site)
+
+
+class JWTNusantaraAuthentication(JWTAuthentication):
+    request = None
+
+    def authenticate(self, request):
+        header = self.get_header(request)
+
+        if header is None:
+            return None
+
+        self.request = request
+
+        raw_token = self.get_raw_token(header)
+        if raw_token is None:
+            return None
+
+        validated_token = self.get_validated_token(raw_token)
+
+        return self.get_user(validated_token), validated_token
+
+    def get_user(self, validated_token):
+        """
+        Attempts to find and return a user using the given validated token.
+        """
+        from rest_framework_simplejwt.exceptions import AuthenticationFailed
+        from rest_framework_simplejwt.exceptions import InvalidToken
+        from rest_framework_simplejwt.settings import api_settings
+
+        try:
+            user_id = validated_token[api_settings.USER_ID_CLAIM]
+        except KeyError:
+            raise InvalidToken(_('Token contained no recognizable user identification'))
+
+        try:
+            user_site = validated_token['site']
+        except KeyError:
+            raise InvalidToken(_('Token contained no recognizable site identification'))
+
+        site = None
+        if self.request:
+            site = Site.objects.get_current(self.request)
+        if site is None:
+            raise AuthenticationFailed(_('Site not found'), code='user_not_found')
+        if user_site != site.domain:
+            raise AuthenticationFailed(_('Site is not match'), code='user_not_found')
+
+        try:
+            user = get_user_model().objects.get(**{api_settings.USER_ID_FIELD: user_id})
+        except get_user_model().DoesNotExist:
+            raise AuthenticationFailed(_('User not found'), code='user_not_found')
+
+        if not user.is_active:
+            raise AuthenticationFailed(_('User is inactive'), code='user_inactive')
+
+        return user
+
+def is_normal_user(request):
+    if not request.user:
+        return True
+
+    if not(request.user.is_staff or request.user.is_superuser):
+        return True
+
+def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, **init_kwargs):
+    class EntityHrefSerializer(serializers.HyperlinkedModelSerializer):
+        name = serializers.CharField(required=False)
+
+        class Meta:
+            model = model_class
+            fields = ('href', 'name',)
+            # extra_kwargs = meta_extra_kwargs or {'href': {'lookup_field': 'slug', }, }
+
+    return EntityHrefSerializer(*init_args, **init_kwargs)
