@@ -320,6 +320,6 @@ def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, 
         class Meta:
             model = model_class
             fields = ('href', 'name',)
-            extra_kwargs = meta_extra_kwargs or {'href': {'lookup_field': 'slug', }, }
+            extra_kwargs = meta_extra_kwargs if meta_extra_kwargs is not None else {'href': {'lookup_field': 'slug', }, }
 
     return EntityHrefSerializer(*init_args, **init_kwargs)

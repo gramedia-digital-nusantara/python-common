@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Type
 
 import msgpack
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.utils.timezone import now
@@ -15,8 +15,6 @@ from gramedia.django.amqp_connection import get_publish_connection_and_channel
 
 _logger = logging.getLogger('LOG')
 _logger_audit = logging.getLogger('AUDIT')
-
-User = get_user_model()
 
 
 class EventType(Enum):
@@ -70,7 +68,7 @@ class BasicPublisher:
     def get_identity(self, data: dict) -> str:
         return data['href']
 
-    def get_user_href(self, user: User) -> str:
+    def get_user_href(self, user: AbstractUser) -> str:
         if isinstance(user, str):
             return user
         return f'https://{self.site.domain}/api/iam/user/{user.username}/' if user else ''
@@ -122,7 +120,7 @@ class BasicPublisher:
                 event_type: EventType,
                 entity_type: str,
                 message_identity: any = None,
-                user: User = None) -> None:
+                user: AbstractUser = None) -> None:
         """ Publish the message to RabbitMQ.
         :param message:
         :param message_serializer:
