@@ -304,12 +304,14 @@ class JWTNusantaraAuthentication(JWTAuthentication):
 
         return user
 
+
 def is_normal_user(request):
     if not request.user:
         return True
 
     if not(request.user.is_staff or request.user.is_superuser):
         return True
+
 
 def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, **init_kwargs):
     class EntityHrefSerializer(serializers.HyperlinkedModelSerializer):
@@ -318,6 +320,6 @@ def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, 
         class Meta:
             model = model_class
             fields = ('href', 'name',)
-            # extra_kwargs = meta_extra_kwargs or {'href': {'lookup_field': 'slug', }, }
+            extra_kwargs = meta_extra_kwargs or {'href': {'lookup_field': 'slug', }, }
 
     return EntityHrefSerializer(*init_args, **init_kwargs)
