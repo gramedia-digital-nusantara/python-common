@@ -59,3 +59,24 @@ class BaseModel(SoftDeletableModel, TimestampedModel):
 
     def __str__(self):
         return self.name
+
+
+class MarkDeletedModel(models.Model):
+    deleted = models.DateTimeField(
+        _('deleted'),
+        null=True,
+        blank=True,
+        help_text=_('Date/time this object was deleted.')
+    )
+    deleted_by = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=_('Optionally identifies who deleted the object.')
+    )
+
+    class Meta:
+        abstract = True
+
+
+
+

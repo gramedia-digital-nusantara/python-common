@@ -18,8 +18,12 @@ from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentityField
+from rest_framework.serializers import HyperlinkedModelSerializer
+
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
 from django.utils.translation import ugettext_lazy as _
+
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
     """ Replaces the default pagination classes, provided by DRF, with one
@@ -323,3 +327,30 @@ def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, 
             extra_kwargs = meta_extra_kwargs if meta_extra_kwargs is not None else {'href': {'lookup_field': 'slug', }, }
 
     return EntityHrefSerializer(*init_args, **init_kwargs)
+
+
+class HyperlinkedSlugIdentityField(HyperlinkedIdentityField):
+    def __init__(self, view_name=None, **kwargs):
+        assert view_name is not None, 'The `view_name` argument is required.'
+        kwargs['lookup_url_kwarg'] = 'slug'
+        kwargs['lookup_field'] = 'slug'
+        kwargs['read_only'] = True
+        kwargs['source'] = '*'
+        super().__init__(view_name, **kwargs)
+
+
+class HyperlinkedSlugField(HyperlinkedRelatedField):
+    lookup_field = 'slug'
+
+    def __init__(self, view_name=None, **kwargs):
+        kwargs['lookup_url_kwarg'] = 'slug'
+        kwargs['lookup_field'] = 'slug'
+        super().__init__(view_name, **kwargs)
+
+
+class HyperlinkedSlugModelSerializer(HyperlinkedModelSerializer):
+    """
+        Same as the default DRF serializer, but uses 'slugs' instead of pk for the identity.
+    """
+    serializer_related_field = HyperlinkedSlugField
+    serializer_url_field = HyperlinkedSlugIdentityField
