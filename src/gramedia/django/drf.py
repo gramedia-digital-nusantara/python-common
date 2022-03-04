@@ -23,6 +23,9 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
 from django.utils.translation import ugettext_lazy as _
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.exceptions import InvalidToken
+from rest_framework_simplejwt.settings import api_settings
 
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
@@ -252,6 +255,10 @@ class CurrentSiteViewSetMixin:
         site = get_current_site(self.request)
         return self.queryset.filter(site=site)
 
+    @property
+    def current_site(self):
+        return get_current_site(self.request)
+
 
 class JWTNusantaraAuthentication(JWTAuthentication):
     request = None
@@ -276,10 +283,6 @@ class JWTNusantaraAuthentication(JWTAuthentication):
         """
         Attempts to find and return a user using the given validated token.
         """
-        from rest_framework_simplejwt.exceptions import AuthenticationFailed
-        from rest_framework_simplejwt.exceptions import InvalidToken
-        from rest_framework_simplejwt.settings import api_settings
-
         try:
             user_id = validated_token[api_settings.USER_ID_CLAIM]
         except KeyError:

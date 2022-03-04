@@ -1,7 +1,9 @@
+import logging
+
 from autoslug import AutoSlugField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
+from django.utils import timezone
 
 class TimestampedModel(models.Model):
     """ An abstract model that contains information about when (and possibly, by whom) an object was last updated.
@@ -61,6 +63,38 @@ class BaseModel(SoftDeletableModel, TimestampedModel):
         return self.name
 
 
+
+
+class MarkDeletedQuerySet(models.QuerySet):
+    def delete(self):
+        logger = logging.getLogger('DELETE')
+        logger.info('THIS MARK DELETE')
+        return super(MarkDeletedQuerySet, self).update(deleted=timezone.now())
+
+    def hard_delete(self):
+        logger = logging.getLogger('HARDDELETE')
+        logger.info('THIS MARK HARD DELETE')
+        return super(MarkDeletedQuerySet, self).delete()
+
+    def alive(self):
+        return self.filter(deleted=None)
+
+    def dead(self):
+        return self.exclude(deleted=None)
+
+
+class MarkDeletedManager(models.Manager):
+    def __init__(self, *args, **kwargs):
+        self.alive_only = kwargs.pop('alive_only', True)
+        super(MarkDeletedManager, self).__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self.alive_only:
+            return MarkDeletedQuerySet(self.model).filter(deleted=None)
+        return MarkDeletedQuerySet(self.model)
+
+
+
 class MarkDeletedModel(models.Model):
     deleted = models.DateTimeField(
         _('deleted'),
@@ -74,9 +108,8 @@ class MarkDeletedModel(models.Model):
         help_text=_('Optionally identifies who deleted the object.')
     )
 
+    objects = MarkDeletedManager()
+    all_objects = MarkDeletedManager(alive_only=False)
+
     class Meta:
         abstract = True
-
-
-
-
