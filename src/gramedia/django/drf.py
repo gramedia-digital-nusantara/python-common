@@ -5,6 +5,7 @@ Django Rest Framework utility classes
 Anything in this package is used along with the Django Rest Framework
 to provide for our use cases within our application.
 """
+import django
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -22,11 +23,14 @@ from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentit
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
-from django.utils.translation import ugettext_lazy as _
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
+if django.VERSION >= (4, 0):
+    from django.utils.translation import gettext_lazy as _
+else:
+    from django.utils.translation import ugettext_lazy as _
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
     """ Replaces the default pagination classes, provided by DRF, with one
