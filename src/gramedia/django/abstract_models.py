@@ -1,9 +1,14 @@
 import logging
+import django
 
 from autoslug import AutoSlugField
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+
+if django.VERSION >= (4, 0):
+    from django.utils.translation import gettext_lazy as _
+else:
+    from django.utils.translation import ugettext_lazy as _
 
 class TimestampedModel(models.Model):
     """ An abstract model that contains information about when (and possibly, by whom) an object was last updated.
