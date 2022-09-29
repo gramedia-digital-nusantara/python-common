@@ -58,12 +58,27 @@ class BasicPublisher:
         """
         if not self._channel.is_open:
             self._connection, self._channel = get_publish_connection_and_channel()
-        self._channel.exchange_declare(
-            exchange=self.exchange_name,
-            type=exchange_type,
-            durable=True,
-            auto_delete=False
-        )
+        try:
+            self._channel.exchange_declare(
+                exchange=self.exchange_name,
+                type=exchange_type,
+                durable=True,
+                auto_delete=False
+            )
+        except Exception as exc:
+            _logger.exception('Cannot create Exchange, try to reconnect')
+            global _channel, _connection
+            _channel = None
+            _connection = None
+            self._connection, self._channel = get_publish_connection_and_channel()
+            self._channel.exchange_declare(
+                exchange=self.exchange_name,
+                type=exchange_type,
+                durable=True,
+                auto_delete=False
+            )
+
+
 
     def get_identity(self, data: dict) -> str:
         return data['href']
