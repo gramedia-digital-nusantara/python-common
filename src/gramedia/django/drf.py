@@ -27,6 +27,8 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
+from django.utils.helpers import get_user_agent, get_entity_slug
+
 if django.VERSION >= (4, 0):
     from django.utils.translation import gettext_lazy as _
 else:
@@ -312,6 +314,17 @@ class JWTNusantaraAuthentication(JWTAuthentication):
 
         if not user.is_active:
             raise AuthenticationFailed(_('User is inactive'), code='user_inactive')
+
+        if get_user_agent(self.request).device_name == 'Bhisma POS':
+            if not validated_token['is_staff']:
+                raise AuthenticationFailed(_('Unauthorized employee access'), code='unauthorized_employee')
+
+            if not validated_token['can_use_pos']:
+                raise AuthenticationFailed(_('Unauthorized POS access'), code='unauthorized_pos_user')
+
+            warehouse_slug = get_entity_slug(self.request.META.get('HTTP_WAREHOUSE',  ''))
+            if warehouse_slug in validated_token['warehouses']:
+                raise AuthenticationFailed(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
 
         return user
 
