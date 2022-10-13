@@ -27,7 +27,7 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
-from django.utils.helpers import get_user_agent, get_entity_slug
+from gramedia.django.utils.helpers import get_user_agent, get_entity_slug
 
 if django.VERSION >= (4, 0):
     from django.utils.translation import gettext_lazy as _
