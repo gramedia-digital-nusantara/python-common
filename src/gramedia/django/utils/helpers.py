@@ -1,4 +1,5 @@
 import io
+import re
 from datetime import timedelta
 from http import HTTPStatus
 from urllib.parse import quote_plus
@@ -45,3 +46,50 @@ def is_valid_youtube_url(video_url: str) -> bool:
     except:
         return False
     return True
+
+
+def get_device_info(user_agent):
+    """ Parse user agent header string
+
+        ex: Bhisma POS-v1.0.0
+
+    :param user_agent:
+    :return:
+    """
+    match_regex = re.search(r'(?P<device_name>.+)-v(?P<device_version>.+)', user_agent)
+
+    device_version = None
+    device_name = None
+
+    if match_regex:
+        device_version = match_regex.group('device_version')
+        device_name = match_regex.group('device_name')
+
+    return device_name, device_version
+
+
+class NusantaraUserAgent(object):
+
+    def __init__(self, user_agent_string):
+        self.ua_string = user_agent_string
+        self.device_name, self.device_version = get_device_info(user_agent_string)
+
+
+def parse_ua(user_agent_string):
+    return NusantaraUserAgent(user_agent_string)
+
+
+def get_user_agent(request):
+    if not hasattr(request, 'META'):
+        return ''
+
+    ua_string = request.META.get('HTTP_USER_AGENT', '')
+
+    user_agent = parse_ua(ua_string)
+
+    return user_agent
+
+
+def get_entity_slug(href: str):
+    match = re.search(r'^.+/(?P<slug>[a-zA-Z0-9-_.]+)/$', href)
+    return match.groupdict().get('slug') if match else None
