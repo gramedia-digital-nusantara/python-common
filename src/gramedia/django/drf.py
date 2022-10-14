@@ -14,6 +14,7 @@ from django.utils.translation import get_language_from_request
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import serializers
 from rest_framework import pagination
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param
@@ -317,14 +318,14 @@ class JWTNusantaraAuthentication(JWTAuthentication):
 
         if get_user_agent(self.request).device_name == 'Bhisma POS':
             if not validated_token['is_staff']:
-                raise AuthenticationFailed(_('Unauthorized employee access'), code='unauthorized_employee')
+                raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
 
             if not validated_token['can_use_pos']:
-                raise AuthenticationFailed(_('Unauthorized POS access'), code='unauthorized_pos_user')
+                raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
 
             warehouse_slug = get_entity_slug(self.request.META.get('HTTP_WAREHOUSE',  ''))
-            if warehouse_slug in validated_token['warehouses']:
-                raise AuthenticationFailed(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
+            if warehouse_slug not in validated_token['warehouses']:
+                raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
 
         return user
 
