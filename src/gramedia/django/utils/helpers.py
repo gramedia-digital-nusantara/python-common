@@ -29,11 +29,16 @@ class MyToken(Token):
     lifetime = timedelta(days=1)
 
 
-def gen_test_user_token(for_user, is_reseller=True, site='example.com'):
+def gen_test_user_token(for_user, is_reseller=False, site='example.com', is_pos=False, warehouses=None):
     test_token = MyToken.for_user(for_user)
     test_token['site'] = site
     test_token['user_id'] = for_user.username
+    test_token['is_reseller'] = is_reseller
     test_token['iss'] = 'nusantara_admin'
+    if is_pos:
+        test_token['is_staff'] = True
+        test_token['can_use_pos'] = True
+        test_token['warehouses'] = [] if warehouses is None else warehouses
 
     return test_token
 
