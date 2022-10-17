@@ -35,10 +35,9 @@ def gen_test_user_token(for_user, is_reseller=False, site='example.com', is_pos=
     test_token['user_id'] = for_user.username
     test_token['is_reseller'] = is_reseller
     test_token['iss'] = 'nusantara_admin'
-    if is_pos:
-        test_token['is_staff'] = True
-        test_token['can_use_pos'] = True
-        test_token['warehouses'] = [] if warehouses is None else warehouses
+    test_token['is_staff'] = for_user.is_staff
+    test_token['can_use_pos'] = is_pos
+    test_token['warehouses'] = [] if warehouses is None else warehouses
 
     return test_token
 
