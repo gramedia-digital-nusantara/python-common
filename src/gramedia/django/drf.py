@@ -317,10 +317,10 @@ class JWTNusantaraAuthentication(JWTAuthentication):
             raise AuthenticationFailed(_('User is inactive'), code='user_inactive')
 
         if get_user_agent(self.request).device_name == 'Bhisma POS':
-            if not validated_token['is_staff']:
+            if not user.is_staff:
                 raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
 
-            if not validated_token['can_use_pos']:
+            if not user.can_use_pos:
                 raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
 
             warehouse_slug = get_entity_slug(self.request.META.get('HTTP_WAREHOUSE',  ''))
