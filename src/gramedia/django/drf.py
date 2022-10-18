@@ -343,8 +343,8 @@ class JWTNusantaraAuthentication(JWTAuthentication):
                 if not data.get('can_use_pos', False):
                     raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
 
-                warehouse_slug = self.request.META.get('HTTP_WAREHOUSE', '')
-                if warehouse_slug not in data.get('warehouses', []):
+                warehouse = self.request.META.get('HTTP_WAREHOUSE', '')
+                if warehouse not in data.get('warehouses', []):
                     raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
 
                 time.sleep(0.25)
