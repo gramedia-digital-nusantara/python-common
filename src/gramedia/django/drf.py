@@ -31,11 +31,11 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
-
 if django.VERSION >= (4, 0):
     from django.utils.translation import gettext_lazy as _
 else:
     from django.utils.translation import ugettext_lazy as _
+
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
     """ Replaces the default pagination classes, provided by DRF, with one
@@ -130,6 +130,7 @@ class SoftDeletableListViewMixin:
     If the 'include_inactive=true', parameter is passed in the query string,
     then all models (regardless of 'is_active' attribute), will be returned.
     """
+
     def get_queryset(self):
         if convert_env_boolean(self.request.query_params.get('include_inactive', '')):
             return self.queryset
@@ -141,6 +142,7 @@ class IsAuthenticatedOrOptions(BasePermission):
     """ Allows access only to authenticated users, unless the request is
     for the http OPTIONS method, then the user is directly allowed.
     """
+
     def has_permission(self, request, view):
         if request.method == 'OPTIONS':
             return True
@@ -173,6 +175,7 @@ def create_summary_serializer(serializer_cls):
     :param serializer_cls:
     :return:
     """
+
     class SummarySerializer(serializer_cls):
         class Meta(serializer_cls.Meta):
             fields = getattr(
@@ -180,6 +183,7 @@ def create_summary_serializer(serializer_cls):
                 'summary_fields',
                 ('href', 'name')
             )
+
     return SummarySerializer
 
 
@@ -332,7 +336,6 @@ class JWTNusantaraAuthentication(JWTAuthentication):
             )
 
             step = 0
-            user = None
             while step <= 10:
                 step = step + 1
                 data = rpc_response.get('data')
@@ -349,9 +352,6 @@ class JWTNusantaraAuthentication(JWTAuthentication):
 
                 time.sleep(0.25)
 
-            if not user:
-                raise AuthenticationFailed(_('User not found'), code='user_not_found')
-
         return user
 
 
@@ -359,7 +359,7 @@ def is_normal_user(request):
     if not request.user:
         return True
 
-    if not(request.user.is_staff or request.user.is_superuser):
+    if not (request.user.is_staff or request.user.is_superuser):
         return True
 
 
@@ -370,7 +370,8 @@ def get_entity_href_serializer(model_class, meta_extra_kwargs=None, *init_args, 
         class Meta:
             model = model_class
             fields = ('href', 'name',)
-            extra_kwargs = meta_extra_kwargs if meta_extra_kwargs is not None else {'href': {'lookup_field': 'slug', }, }
+            extra_kwargs = meta_extra_kwargs if meta_extra_kwargs is not None else {
+                'href': {'lookup_field': 'slug', }, }
 
     return EntityHrefSerializer(*init_args, **init_kwargs)
 
