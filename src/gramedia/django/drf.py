@@ -5,6 +5,7 @@ Django Rest Framework utility classes
 Anything in this package is used along with the Django Rest Framework
 to provide for our use cases within our application.
 """
+import time
 import django
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -24,11 +25,12 @@ from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentit
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
+from gramedia.django.signalling import BasicRpcClient
+from gramedia.django.utils.helpers import get_user_agent
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
-from gramedia.django.utils.helpers import get_user_agent, get_entity_slug
 
 if django.VERSION >= (4, 0):
     from django.utils.translation import gettext_lazy as _
@@ -317,15 +319,38 @@ class JWTNusantaraAuthentication(JWTAuthentication):
             raise AuthenticationFailed(_('User is inactive'), code='user_inactive')
 
         if get_user_agent(self.request).device_name == 'Bhisma POS':
-            if not user.is_staff:
-                raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
+            IAM_POS_USER_RPC = f"{settings.CLUSTER_PREFIX}iam_pos_user_rpc"  # iam_user_rpc
+            publish = BasicRpcClient(routing=IAM_POS_USER_RPC)
 
-            if not user.can_use_pos:
-                raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
+            rpc_response = publish.call(
+                message={
+                    "email": user.email
+                },
+                event_type='pos_user_rpc',
+                entity_type='pos_user_rpc',
+                site=site
+            )
 
-            warehouse_slug = get_entity_slug(self.request.META.get('HTTP_WAREHOUSE',  ''))
-            if warehouse_slug not in validated_token['warehouses']:
-                raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
+            step = 0
+            user = None
+            while step <= 10:
+                step = step + 1
+                data = rpc_response.get('data')
+
+                if not data.get('is_staff', False):
+                    raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
+
+                if not data.get('can_use_pos', False):
+                    raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
+
+                warehouse = self.request.META.get('HTTP_WAREHOUSE', '')
+                if warehouse not in data.get('warehouses', []):
+                    raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
+
+                time.sleep(0.25)
+
+            if not user:
+                raise AuthenticationFailed(_('User not found'), code='user_not_found')
 
         return user
 
