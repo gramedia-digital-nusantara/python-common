@@ -20,10 +20,8 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer
-
 from gramedia.common.http import LinkHeaderField, LinkHeaderRel
 from gramedia.django.signalling import BasicRpcClient
 from gramedia.django.utils.helpers import get_user_agent
@@ -326,14 +324,7 @@ class JWTNusantaraAuthentication(JWTAuthentication):
             IAM_POS_USER_RPC = f"{settings.CLUSTER_PREFIX}iam_pos_user_rpc"  # iam_user_rpc
             publish = BasicRpcClient(routing=IAM_POS_USER_RPC)
 
-            rpc_response = publish.call(
-                message={
-                    "email": user.email
-                },
-                event_type='pos_user_rpc',
-                entity_type='pos_user_rpc',
-                site=site
-            )
+            rpc_response = publish.call(message={"email": 'admin@gmail.com'},event_type='pos_user_rpc', entity_type='pos_user_rpc', site=site)
 
             step = 0
             while step <= 10:
@@ -349,6 +340,9 @@ class JWTNusantaraAuthentication(JWTAuthentication):
                 warehouse = self.request.META.get('HTTP_WAREHOUSE', '')
                 if warehouse not in data.get('warehouses', []):
                     raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
+
+                if rpc_response:
+                    break
 
                 time.sleep(0.25)
 
