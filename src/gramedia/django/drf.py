@@ -5,6 +5,7 @@ Django Rest Framework utility classes
 Anything in this package is used along with the Django Rest Framework
 to provide for our use cases within our application.
 """
+import logging
 import time
 import django
 from django.conf import settings
@@ -34,6 +35,7 @@ if django.VERSION >= (4, 0):
 else:
     from django.utils.translation import ugettext_lazy as _
 
+logger = logging.getLogger('DRFCommon')
 
 class LinkHeaderPagination(pagination.PageNumberPagination):
     """ Replaces the default pagination classes, provided by DRF, with one
@@ -323,28 +325,30 @@ class JWTNusantaraAuthentication(JWTAuthentication):
         if get_user_agent(self.request).device_name == 'Bhisma POS':
             IAM_POS_USER_RPC = f"{settings.CLUSTER_PREFIX}iam_pos_user_rpc"  # iam_user_rpc
             publish = BasicRpcClient(routing=IAM_POS_USER_RPC)
+            logger.info(f'Calling RPC Client {IAM_POS_USER_RPC}')
+            rpc_response = publish.call(
+                message={
+                    "email": user.email
+                },
+                event_type='pos_user_rpc',
+                entity_type='pos_user_rpc',
+                site=site
+            )
+            logger.info(f'End call RPC Client {IAM_POS_USER_RPC}')
+            logger.debug(rpc_response)
 
-            rpc_response = publish.call(message={"email": 'admin@gmail.com'},event_type='pos_user_rpc', entity_type='pos_user_rpc', site=site)
 
-            step = 0
-            while step <= 10:
-                step = step + 1
-                data = rpc_response.get('data')
+            data = rpc_response.get('data')
 
-                if not data.get('is_staff', False):
-                    raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
+            if not data.get('is_staff', False):
+                raise PermissionDenied(_('Unauthorized employee access'), code='unauthorized_employee')
 
-                if not data.get('can_use_pos', False):
-                    raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
+            if not data.get('can_use_pos', False):
+                raise PermissionDenied(_('Unauthorized POS access'), code='unauthorized_pos_user')
 
-                warehouse = self.request.META.get('HTTP_WAREHOUSE', '')
-                if warehouse not in data.get('warehouses', []):
-                    raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
-
-                if rpc_response:
-                    break
-
-                time.sleep(0.25)
+            warehouse = self.request.META.get('HTTP_WAREHOUSE', '')
+            if warehouse not in data.get('warehouses', []):
+                raise PermissionDenied(_('Unauthorized POS warehouse'), code='unauthorized_pos_warehouse')
 
         return user
 
