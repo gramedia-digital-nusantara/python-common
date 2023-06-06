@@ -22,7 +22,7 @@ copyright = '2020, PT Gramedia Digital Nusantara'
 author = 'PT Gramedia Digital Nusantara'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.0'
+release = '0.9.2'
 
 
 # -- General configuration ---------------------------------------------------
